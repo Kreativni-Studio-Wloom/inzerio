@@ -2162,15 +2162,11 @@ html {
 
 .chat-container {
     display: flex;
-    height: 100vh;
+    height: calc(100vh - 70px);
     background: #f8f9fa;
-    margin-top: 0;
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 1000;
+    margin-top: 70px;
+    position: relative;
+    z-index: 1;
     overflow: hidden;
 }
 
@@ -2183,7 +2179,7 @@ html {
     flex-direction: column;
     position: relative;
     z-index: 1;
-    height: 100vh;
+    height: calc(100vh - 70px);
 }
 
 .conversations-header {
@@ -2359,7 +2355,7 @@ html {
     position: relative;
     z-index: 1;
     overflow: hidden;
-    height: 100vh;
+    height: calc(100vh - 70px);
 }
 
 .chat-header {
@@ -3104,8 +3100,8 @@ html {
 /* Responzivní design pro chat */
 @media (max-width: 768px) {
     .chat-container {
-        height: 100vh;
-        margin-top: 0;
+        height: calc(100vh - 60px);
+        margin-top: 60px;
         overflow: hidden;
     }
     
@@ -3113,20 +3109,20 @@ html {
         width: 100%;
         position: relative;
         z-index: 1;
-        height: 100vh;
+        height: calc(100vh - 60px);
     }
     
     .chat-window {
         display: none;
         position: relative;
         z-index: 1;
-        height: 100vh;
+        height: calc(100vh - 60px);
     }
     
     .chat-window.active {
         display: flex;
         position: fixed;
-        top: 0;
+        top: 60px;
         left: 0;
         right: 0;
         bottom: 0;
