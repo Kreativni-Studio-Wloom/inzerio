@@ -452,7 +452,7 @@ async function purchaseTop(adId) {
         await updateDoc(doc(window.firebaseDb, 'users', currentUser.uid, 'inzeraty', adId), {
             isTop: true,
             topPurchasedAt: new Date(),
-            topExpiresAt: new Date(Date.now() + 1 * 60 * 1000) // 1 minuta od nynějška
+            topExpiresAt: new Date(Date.now() + 15 * 60 * 1000) // 15 minut od nynějška
         });
         
         // Aktualizovat číslo v dropdownu
@@ -461,7 +461,7 @@ async function purchaseTop(adId) {
             balanceAmount.textContent = `${(currentBalance - 500).toLocaleString('cs-CZ')} Kč`;
         }
         
-        showMessage('TOP byl úspěšně aktivován na 1 minutu. Váš inzerát se bude zobrazovat první.', 'success');
+        showMessage('TOP byl úspěšně aktivován na 15 minut. Váš inzerát se bude zobrazovat první.', 'success');
         await loadUserAds();
         
     } catch (error) {

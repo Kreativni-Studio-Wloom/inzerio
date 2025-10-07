@@ -111,26 +111,59 @@
             <div class="page-header-content">
                 <h1>Všechny služby</h1>
                 <p>Prohlédněte si všechny dostupné služby od našich profesionálů</p>
-                <button onclick="testContact()" class="btn btn-primary" style="margin-top: 1rem;">
-                    <i class="fas fa-test-tube"></i> Test Kontaktu
-                </button>
                 <div class="search-filter-bar">
                     <div class="search-box">
                         <input type="text" id="searchInput" placeholder="Hledat služby...">
                     </div>
                     <div class="search-box">
-                        <input type="text" id="locationFilter" placeholder="Město" list="citiesList" autocomplete="off">
+                        <select id="regionFilter" style="min-width:220px">
+                            <option value="">Kraj (ČR/SR)</option>
+                            <optgroup label="Česká republika">
+                                <option value="Praha">Hlavní město Praha</option>
+                                <option value="Stredocesky">Středočeský kraj</option>
+                                <option value="Jihocesky">Jihočeský kraj</option>
+                                <option value="Plzensky">Plzeňský kraj</option>
+                                <option value="Karlovarsky">Karlovarský kraj</option>
+                                <option value="Ustecky">Ústecký kraj</option>
+                                <option value="Liberecky">Liberecký kraj</option>
+                                <option value="Kralovehradecky">Královéhradecký kraj</option>
+                                <option value="Pardubicky">Pardubický kraj</option>
+                                <option value="Vysocina">Kraj Vysočina</option>
+                                <option value="Jihomoravsky">Jihomoravský kraj</option>
+                                <option value="Olomoucky">Olomoucký kraj</option>
+                                <option value="Zlinsky">Zlínský kraj</option>
+                                <option value="Moravskoslezsky">Moravskoslezský kraj</option>
+                            </optgroup>
+                            <optgroup label="Slovenská republika">
+                                <option value="Bratislavsky">Bratislavský kraj</option>
+                                <option value="Trnavsky">Trnavský kraj</option>
+                                <option value="Trenciansky">Trenčianský kraj</option>
+                                <option value="Nitriansky">Nitriansky kraj</option>
+                                <option value="Zilinsky">Žilinský kraj</option>
+                                <option value="Banskobystricky">Banskobystrický kraj</option>
+                                <option value="Presovsky">Prešovský kraj</option>
+                                <option value="Kosicky">Košický kraj</option>
+                            </optgroup>
+                        </select>
                         <i class="fas fa-map-marker-alt"></i>
                     </div>
                     <div class="filter-dropdown">
                         <select id="categoryFilter">
                             <option value="">Všechny kategorie</option>
-                            <option value="technical">Technické služby</option>
-                            <option value="it">IT služby</option>
-                            <option value="design">Design a kreativita</option>
-                            <option value="education">Vzdělávání</option>
-                            <option value="home">Domácí služby</option>
-                            <option value="transport">Doprava a logistika</option>
+                            <option value="home_craftsmen">Domácnost & Řemeslníci</option>
+                            <option value="auto_moto">Auto & Moto</option>
+                            <option value="garden_exterior">Zahrada & Exteriér</option>
+                            <option value="education_tutoring">Vzdělávání & Doučování</option>
+                            <option value="it_technology">IT & technologie</option>
+                            <option value="health_personal_care">Zdraví a Osobní péče</option>
+                            <option value="gastronomy_catering">Gastronomie & Catering</option>
+                            <option value="events_entertainment">Události & Zábava</option>
+                            <option value="personal_small_jobs">Osobní služby & drobné práce</option>
+                            <option value="auto_moto_transport">Auto - moto doprava</option>
+                            <option value="hobby_creative">Hobby & kreativní služby</option>
+                            <option value="law_finance_admin">Právo & finance & administrativa</option>
+                            <option value="pets">Domácí zvířata</option>
+                            <option value="specialized_custom">Specializované služby / na přání</option>
                         </select>
                     </div>
                     <button id="searchBtn" class="btn btn-primary" style="white-space: nowrap;">
@@ -146,6 +179,17 @@
                     </div>
                     
                 </div>
+
+                <!-- Vyhledávání uživatelů/profilů -->
+                <div class="search-filter-bar" style="margin-top: 1rem;">
+                    <div class="search-box" style="flex: 1 1 60%;">
+                        <input type="text" id="userSearchInput" placeholder="Hledat profily: jméno, příjmení, email nebo telefon">
+                    </div>
+                    <button id="userSearchBtn" class="btn btn-primary" style="white-space: nowrap;">
+                        <i class="fas fa-user-search"></i> Hledat profily
+                    </button>
+                </div>
+                <div id="userResults" class="services-grid" style="margin-top: 1rem; display: none;"></div>
             </div>
         </div>
     </section>
@@ -238,9 +282,54 @@
                     <input type="text" id="servicePrice" name="price" placeholder="Cena (např. 500 Kč/hod)">
                 </div>
                 <div class="form-group">
-                    <input type="text" id="serviceLocation" name="location" placeholder="Lokalita" list="citiesList" autocomplete="off" required>
-                    <datalist id="citiesList"></datalist>
+                    <select id="serviceRegion" name="location" required>
+                        <option value="">Vyberte kraj (ČR/SR)</option>
+                        <optgroup label="Česká republika">
+                            <option value="Praha">Hlavní město Praha</option>
+                            <option value="Stredocesky">Středočeský kraj</option>
+                            <option value="Jihocesky">Jihočeský kraj</option>
+                            <option value="Plzensky">Plzeňský kraj</option>
+                            <option value="Karlovarsky">Karlovarský kraj</option>
+                            <option value="Ustecky">Ústecký kraj</option>
+                            <option value="Liberecky">Liberecký kraj</option>
+                            <option value="Kralovehradecky">Královéhradecký kraj</option>
+                            <option value="Pardubicky">Pardubický kraj</option>
+                            <option value="Vysocina">Kraj Vysočina</option>
+                            <option value="Jihomoravsky">Jihomoravský kraj</option>
+                            <option value="Olomoucky">Olomoucký kraj</option>
+                            <option value="Zlinsky">Zlínský kraj</option>
+                            <option value="Moravskoslezsky">Moravskoslezský kraj</option>
+                        </optgroup>
+                        <optgroup label="Slovenská republika">
+                            <option value="Bratislavsky">Bratislavský kraj</option>
+                            <option value="Trnavsky">Trnavský kraj</option>
+                            <option value="Trenciansky">Trenčianský kraj</option>
+                            <option value="Nitriansky">Nitriansky kraj</option>
+                            <option value="Zilinsky">Žilinský kraj</option>
+                            <option value="Banskobystricky">Banskobystrický kraj</option>
+                            <option value="Presovsky">Prešovský kraj</option>
+                            <option value="Kosicky">Košický kraj</option>
+                        </optgroup>
+                    </select>
                 </div>
+                
+                <!-- Sekce pro nahrávání obrázků -->
+                <div class="form-group">
+                    <label for="previewImage" class="form-label">
+                        <i class="fas fa-image"></i> Náhledový obrázek <span class="required">*</span>
+                    </label>
+                    <input type="file" id="previewImage" name="previewImage" accept="image/*" required>
+                    <div class="image-preview" id="previewImagePreview"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="additionalImages" class="form-label">
+                        <i class="fas fa-images"></i> Další fotky (volitelné, max 10)
+                    </label>
+                    <input type="file" id="additionalImages" name="additionalImages" accept="image/*" multiple>
+                    <div class="images-grid" id="additionalImagesPreview"></div>
+                </div>
+                
                 <button type="submit" class="btn btn-primary">Přidat službu</button>
             </form>
         </div>

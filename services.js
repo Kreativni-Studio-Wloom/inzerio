@@ -384,6 +384,19 @@ function displayServices() {
     
     servicesGrid.innerHTML = filteredServices.map(service => `
         <div class="service-item${service.isTop ? ' top' : ''}" data-category="${service.category || ''}">
+            ${service.images && service.images.length > 0 ? `
+            <div class="service-images">
+                <img class="service-image" src="${service.images[0].url}" alt="${service.title}" onclick="openImageViewer(${JSON.stringify(service.images).replace(/"/g, '&quot;')}, 0)">
+                ${service.images.length > 1 ? `
+                <div class="service-images-grid">
+                    ${service.images.slice(1, 4).map((img, index) => `
+                        <img class="service-image-thumb" src="${img.url}" alt="${service.title}" onclick="openImageViewer(${JSON.stringify(service.images).replace(/"/g, '&quot;')}, ${index + 1})">
+                    `).join('')}
+                    ${service.images.length > 4 ? `<div class="more-images">+${service.images.length - 4}</div>` : ''}
+                </div>
+                ` : ''}
+            </div>
+            ` : ''}
             <div class="service-item-header">
                 <h3 class="service-title">${service.title || 'Bez názvu'}</h3>
                 <span class="service-category">${getCategoryName(service.category || '')}</span>
@@ -416,6 +429,9 @@ function displayServices() {
                 <button class="btn btn-primary" onclick="contactService('${service.id}')">
                     <i class="fas fa-comments"></i> Chat
                 </button>
+                <button class="btn btn-success" onclick="showServiceProfile('${service.id}')">
+                    <i class="fas fa-user"></i> Zobrazit profil
+                </button>
                 <button class="btn btn-outline" onclick="showServiceDetails('${service.id}')">
                     <i class="fas fa-info-circle"></i> Více info
                 </button>
@@ -429,12 +445,20 @@ function displayServices() {
 // Získání názvu kategorie
 function getCategoryName(category) {
     const categories = {
-        'technical': 'Technické služby',
-        'it': 'IT služby',
-        'design': 'Design a kreativita',
-        'education': 'Vzdělávání',
-        'home': 'Domácí služby',
-        'transport': 'Doprava a logistika'
+        'home_craftsmen': 'Domácnost & Řemeslníci',
+        'auto_moto': 'Auto & Moto',
+        'garden_exterior': 'Zahrada & Exteriér',
+        'education_tutoring': 'Vzdělávání & Doučování',
+        'it_technology': 'IT & technologie',
+        'health_personal_care': 'Zdraví a Osobní péče',
+        'gastronomy_catering': 'Gastronomie & Catering',
+        'events_entertainment': 'Události & Zábava',
+        'personal_small_jobs': 'Osobní služby & drobné práce',
+        'auto_moto_transport': 'Auto - moto doprava',
+        'hobby_creative': 'Hobby & kreativní služby',
+        'law_finance_admin': 'Právo & finance & administrativa',
+        'pets': 'Domácí zvířata',
+        'specialized_custom': 'Specializované služby / na přání'
     };
     return categories[category] || category;
 }
@@ -509,13 +533,21 @@ function setupEventListeners() {
             filterServices();
         });
     }
+
+    // Vyhledávání uživatelů/profilů
+    const userSearchBtn = document.getElementById('userSearchBtn');
+    if (userSearchBtn) {
+        userSearchBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            searchUsers();
+        });
+    }
 }
 
 // Filtrování služeb
 function filterServices() {
     const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-    const locationTermRaw = (document.getElementById('locationFilter')?.value || '').trim();
-    const locationTerm = normalize(locationTermRaw);
+    const regionValue = (document.getElementById('regionFilter')?.value || '').trim();
     const categoryFilter = document.getElementById('categoryFilter').value;
     
     filteredServices = allServices.filter(service => {
@@ -523,7 +555,7 @@ function filterServices() {
         const desc = (service.description || '').toLowerCase();
         const loc = (service.location || '').toLowerCase();
         const matchesSearch = title.includes(searchTerm) || desc.includes(searchTerm) || loc.includes(searchTerm);
-        const matchesLocation = !locationTerm || normalize(service.location || '').includes(locationTerm);
+        const matchesLocation = !regionValue || (service.location === regionValue);
         
         const matchesCategory = !categoryFilter || service.category === categoryFilter;
         
@@ -539,6 +571,107 @@ function filterServices() {
     
     displayServices();
     updateStats();
+}
+
+// Vyhledání uživatelských profilů podle jména/příjmení/emailu/telefonu
+async function searchUsers() {
+    try {
+        const queryTextRaw = (document.getElementById('userSearchInput')?.value || '').trim();
+        const queryText = normalize(queryTextRaw);
+        const userResultsEl = document.getElementById('userResults');
+        if (!userResultsEl) return;
+        if (!queryText) {
+            userResultsEl.style.display = 'none';
+            userResultsEl.innerHTML = '';
+            return;
+        }
+
+        // Načti profily přes collectionGroup "profile"
+        const { collectionGroup, getDocs } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+        const profilesRef = collectionGroup(servicesFirebaseDb, 'profile');
+        const snapshot = await getDocs(profilesRef);
+
+        const matched = [];
+        snapshot.forEach((docSnap) => {
+            const data = docSnap.data() || {};
+            const fullName = `${data.firstName || ''} ${data.lastName || ''}`.trim();
+            const haystack = normalize(`${fullName} ${data.name || ''} ${data.email || ''} ${data.phone || ''}`);
+            if (haystack.includes(queryText)) {
+                matched.push({ id: docSnap.id, uid: docSnap.ref.parent.parent?.id, ...data });
+            }
+        });
+
+        renderUserResults(matched);
+    } catch (err) {
+        console.error('Chyba při vyhledávání uživatelů:', err);
+        showMessage('Chyba při vyhledávání uživatelů', 'error');
+    }
+}
+
+function renderUserResults(users) {
+    const userResultsEl = document.getElementById('userResults');
+    if (!userResultsEl) return;
+    if (!users || users.length === 0) {
+        userResultsEl.style.display = 'block';
+        userResultsEl.innerHTML = `
+            <div class="no-services" style="grid-column: 1 / -1;">
+                <i class="fas fa-user-slash"></i>
+                <h3>Žádné profily nenalezeny</h3>
+                <p>Zkuste upravit hledaný výraz.</p>
+            </div>
+        `;
+        return;
+    }
+
+    userResultsEl.style.display = 'grid';
+    userResultsEl.innerHTML = users.map(u => `
+        <div class="service-item">
+            <div class="service-item-header">
+                <h3 class="service-title">${u.name || `${u.firstName || ''} ${u.lastName || ''}` || 'Uživatel'}</h3>
+                <span class="service-category">Profil</span>
+            </div>
+            <div class="service-content">
+                <div class="service-details">
+                    <div class="service-detail"><i class="fas fa-user"></i> <span>${u.email || 'N/A'}</span></div>
+                    ${u.phone ? `<div class="service-detail"><i class="fas fa-phone"></i> <span>${u.phone}</span></div>` : ''}
+                </div>
+            </div>
+            <div class="service-actions">
+                <button class="btn btn-success" onclick="openUserProfile('${u.uid || ''}')">
+                    <i class="fas fa-user"></i> Zobrazit profil
+                </button>
+            </div>
+        </div>
+    `).join('');
+}
+
+async function openUserProfile(uid) {
+    if (!uid) return;
+    // Najít libovolný inzerát tohoto uživatele a použít existující showServiceProfile
+    const anyService = allServices.find(s => s.userId === uid);
+    if (anyService) {
+        showServiceProfile(anyService.id);
+        return;
+    }
+    // Fallback: otevřít prázdný profil (bez inzerátů)
+    try {
+        const { getDoc, doc } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+        const userRef = doc(servicesFirebaseDb, 'users', uid, 'profile', 'profile');
+        const userSnap = await getDoc(userRef);
+        if (!userSnap.exists()) {
+            showMessage('Profil nenalezen', 'error');
+            return;
+        }
+        // Vytvořit dočasnou službu jen pro využití existujícího UI
+        const tempService = { id: `temp-${uid}`, userId: uid, userEmail: userSnap.data().email || '' };
+        allServices.push(tempService);
+        showServiceProfile(tempService.id);
+        // odstranit temp
+        allServices = allServices.filter(s => s !== tempService);
+    } catch (e) {
+        console.error(e);
+        showMessage('Nepodařilo se otevřít profil', 'error');
+    }
 }
 
 // Normalizace textu pro porovnávání bez diakritiky
@@ -649,6 +782,22 @@ function showServiceDetails(serviceId) {
                 <span class="close" onclick="this.closest('.modal').remove()">&times;</span>
             </div>
             <div class="service-details-content">
+                ${service.images && service.images.length > 0 ? `
+                <div class="service-detail-section">
+                    <h3><i class="fas fa-images"></i> Fotky služby</h3>
+                    <div class="service-images-gallery">
+                        ${service.images.map((img, index) => `
+                            <div class="gallery-image-item" onclick="openImageViewer(${JSON.stringify(service.images).replace(/"/g, '&quot;')}, ${index})">
+                                <img src="${img.url}" alt="${service.title} - obrázek ${index + 1}" class="gallery-image">
+                                <div class="gallery-image-overlay">
+                                    <i class="fas fa-expand"></i>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <p class="gallery-info">Klikněte na obrázek pro plné zobrazení</p>
+                </div>
+                ` : ''}
                 <div class="service-detail-section">
                     <h3>Popis služby</h3>
                     <p>${service.description}</p>
@@ -914,6 +1063,153 @@ async function testFirebaseConnection() {
     }
 }
 
+// Zobrazení profilu prodejce služby
+async function showServiceProfile(serviceId) {
+    console.log('👤 Zobrazuji profil prodejce služby:', serviceId);
+    
+    const service = allServices.find(s => s.id === serviceId);
+    if (!service) {
+        console.error('❌ Služba nenalezena!');
+        showMessage('Služba nenalezena!', 'error');
+        return;
+    }
+    
+    console.log('🔍 Nalezená služba:', service);
+    
+    try {
+        // Načíst informace o uživateli
+        const { getDoc, doc, collection, query, where, getDocs } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+        const userRef = doc(window.firebaseDb, 'users', service.userId, 'profile', 'profile');
+        const userSnap = await getDoc(userRef);
+        
+        let userData = {};
+        if (userSnap.exists()) {
+            userData = userSnap.data();
+            console.log('📄 Uživatel nalezen:', userData);
+        } else {
+            console.log('⚠️ Uživatel nenalezen, používám základní informace');
+            userData = {
+                name: 'Uživatel',
+                email: service.userEmail || 'N/A',
+                bio: 'Žádné informace o uživateli.'
+            };
+        }
+        
+        // Načíst inzeráty uživatele
+        const adsRef = collection(window.firebaseDb, 'users', service.userId, 'inzeraty');
+        const q = query(adsRef, where('status', '==', 'active'));
+        const adsSnapshot = await getDocs(q);
+        
+        const userAds = [];
+        adsSnapshot.forEach((doc) => {
+            userAds.push({
+                id: doc.id,
+                ...doc.data()
+            });
+        });
+        
+        console.log('📋 Načteny inzeráty uživatele:', userAds.length);
+        
+        // Vytvoření Instagram-like profil modalu
+        const modal = document.createElement('div');
+        modal.className = 'modal instagram-profile-modal';
+        modal.style.display = 'flex';
+        modal.innerHTML = `
+            <div class="modal-content instagram-profile-content">
+                <div class="instagram-profile-header">
+                    <button class="instagram-close-btn" onclick="this.closest('.modal').remove()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                    <h2>Profil prodejce</h2>
+                </div>
+                
+                <div class="instagram-profile-body">
+                    <!-- Profil Header -->
+                    <div class="instagram-profile-info">
+                        <div class="instagram-avatar-large">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="instagram-user-details">
+                            <h1 class="instagram-username">${userData.name || userData.displayName || 'Uživatel'}</h1>
+                            <div class="instagram-stats">
+                                <div class="instagram-stat">
+                                    <span class="instagram-stat-number">${userAds.length}</span>
+                                    <span class="instagram-stat-label">Inzerátů</span>
+                                </div>
+                                <div class="instagram-stat">
+                                    <span class="instagram-stat-number">${userData.rating || '5.0'}</span>
+                                    <span class="instagram-stat-label">Hodnocení</span>
+                                </div>
+                                <div class="instagram-stat">
+                                    <span class="instagram-stat-number">${userData.createdAt ? new Date(userData.createdAt).getFullYear() : '2024'}</span>
+                                    <span class="instagram-stat-label">Registrován</span>
+                                </div>
+                            </div>
+                            <div class="instagram-bio">
+                                <p><strong>Email:</strong> ${userData.email || service.userEmail || 'N/A'}</p>
+                                <p><strong>O uživateli:</strong> ${userData.bio || 'Žádné informace o uživateli.'}</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Inzeráty Grid -->
+                    <div class="instagram-posts-section">
+                        <div class="instagram-posts-header">
+                            <h3><i class="fas fa-thumbtack"></i> Inzeráty uživatele</h3>
+                        </div>
+                        <div class="instagram-posts-grid">
+                            ${userAds.map(ad => `
+                                <div class="instagram-post" onclick="showServiceDetails('${ad.id}')">
+                                    <div class="instagram-post-content">
+                                        <div class="instagram-post-icon">
+                                            <i class="${getCategoryIcon(ad.category)}"></i>
+                                        </div>
+                                        <div class="instagram-post-info">
+                                            <h4>${ad.title}</h4>
+                                            <p class="instagram-post-price">${ad.price}</p>
+                                            <p class="instagram-post-location">
+                                                <i class="fas fa-map-marker-alt"></i> ${ad.location}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+        console.log('✅ Instagram-like profil prodejce zobrazen');
+        
+    } catch (error) {
+        console.error('❌ Chyba při načítání profilu prodejce:', error);
+        showMessage('Nepodařilo se načíst profil prodejce: ' + error.message, 'error');
+    }
+}
+
+// Získání ikony podle kategorie (stejné jako v chat.js)
+function getCategoryIcon(category) {
+    const icons = {
+        'home_craftsmen': 'fas fa-hammer',
+        'auto_moto': 'fas fa-car',
+        'garden_exterior': 'fas fa-leaf',
+        'education_tutoring': 'fas fa-graduation-cap',
+        'it_technology': 'fas fa-microchip',
+        'health_personal_care': 'fas fa-heart',
+        'gastronomy_catering': 'fas fa-utensils',
+        'events_entertainment': 'fas fa-music',
+        'personal_small_jobs': 'fas fa-hands-helping',
+        'auto_moto_transport': 'fas fa-truck',
+        'hobby_creative': 'fas fa-palette',
+        'law_finance_admin': 'fas fa-balance-scale',
+        'pets': 'fas fa-paw',
+        'specialized_custom': 'fas fa-star'
+    };
+    return icons[category] || 'fas fa-tag';
+}
+
 // Export funkcí pro globální použití
 // Testovací funkce pro kontakt
 function testContact() {
@@ -948,6 +1244,7 @@ function testContact() {
 
 window.contactService = contactService;
 window.showServiceDetails = showServiceDetails;
+window.showServiceProfile = showServiceProfile;
 window.addTestServices = addTestServices;
 window.testFirebaseConnection = testFirebaseConnection;
 window.addService = addService;

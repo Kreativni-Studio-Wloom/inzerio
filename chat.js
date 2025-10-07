@@ -1258,14 +1258,20 @@ function displayPinnedAd(ad) {
 // Získání ikony podle kategorie
 function getCategoryIcon(category) {
     const icons = {
-        'technical': 'fas fa-tools',
-        'education': 'fas fa-graduation-cap',
-        'design': 'fas fa-palette',
-        'home': 'fas fa-home',
-        'transport': 'fas fa-truck',
-        'health': 'fas fa-heartbeat',
-        'business': 'fas fa-briefcase',
-        'other': 'fas fa-ellipsis-h'
+        'home_craftsmen': 'fas fa-hammer',
+        'auto_moto': 'fas fa-car',
+        'garden_exterior': 'fas fa-leaf',
+        'education_tutoring': 'fas fa-graduation-cap',
+        'it_technology': 'fas fa-microchip',
+        'health_personal_care': 'fas fa-heart',
+        'gastronomy_catering': 'fas fa-utensils',
+        'events_entertainment': 'fas fa-music',
+        'personal_small_jobs': 'fas fa-hands-helping',
+        'auto_moto_transport': 'fas fa-truck',
+        'hobby_creative': 'fas fa-palette',
+        'law_finance_admin': 'fas fa-balance-scale',
+        'pets': 'fas fa-paw',
+        'specialized_custom': 'fas fa-star'
     };
     return icons[category] || 'fas fa-tag';
 }
@@ -1273,14 +1279,20 @@ function getCategoryIcon(category) {
 // Získání názvu kategorie
 function getCategoryName(category) {
     const names = {
-        'technical': 'Technické služby',
-        'education': 'Vzdělávání',
-        'design': 'Design',
-        'home': 'Domácnost',
-        'transport': 'Doprava',
-        'health': 'Zdraví',
-        'business': 'Obchod',
-        'other': 'Ostatní'
+        'home_craftsmen': 'Domácnost & Řemeslníci',
+        'auto_moto': 'Auto & Moto',
+        'garden_exterior': 'Zahrada & Exteriér',
+        'education_tutoring': 'Vzdělávání & Doučování',
+        'it_technology': 'IT & technologie',
+        'health_personal_care': 'Zdraví a Osobní péče',
+        'gastronomy_catering': 'Gastronomie & Catering',
+        'events_entertainment': 'Události & Zábava',
+        'personal_small_jobs': 'Osobní služby & drobné práce',
+        'auto_moto_transport': 'Auto - moto doprava',
+        'hobby_creative': 'Hobby & kreativní služby',
+        'law_finance_admin': 'Právo & finance & administrativa',
+        'pets': 'Domácí zvířata',
+        'specialized_custom': 'Specializované služby / na přání'
     };
     return names[category] || 'Ostatní';
 }
@@ -1379,7 +1391,7 @@ function displayChatPinnedAd(ad) {
     const categoryIcon = getCategoryIcon(ad.category);
     
     chatPinnedAdContainer.innerHTML = `
-        <div class="chat-pinned-ad-content" onclick="showPinnedAdDetails('${ad.id}')">
+        <div class="chat-pinned-ad-content" onclick="console.log('🖱️ Klik na pinned inzerát:', '${ad.id}'); showPinnedAdDetails('${ad.id}')">
             <div class="chat-pinned-ad-icon">
                 <i class="${categoryIcon}"></i>
             </div>
@@ -1413,11 +1425,16 @@ function closeChatPinnedAd() {
 // Zobrazení detailů pinned inzerátu
 function showPinnedAdDetails(adId) {
     console.log('🔍 Zobrazuji detaily pinned inzerátu:', adId);
+    console.log('🔍 Aktuální currentPinnedAd:', currentPinnedAd);
+    console.log('🔍 Funkce showPinnedAdDetails byla volána!');
     
     if (!currentPinnedAd) {
         console.error('❌ Žádný pinned inzerát není načten');
+        console.log('🔍 Zkouším načíst currentPinnedAd znovu...');
         return;
     }
+    
+    console.log('✅ Vytvářím modal s detaily...');
     
     // Vytvoření modalu s detaily služby (stejné jako v services.js)
     const modal = document.createElement('div');
@@ -1430,6 +1447,22 @@ function showPinnedAdDetails(adId) {
                 <span class="close" onclick="this.closest('.modal').remove()">&times;</span>
             </div>
             <div class="service-details-content">
+                ${currentPinnedAd.images && currentPinnedAd.images.length > 0 ? `
+                <div class="service-detail-section">
+                    <h3><i class="fas fa-images"></i> Fotky služby</h3>
+                    <div class="service-images-gallery">
+                        ${currentPinnedAd.images.map((img, index) => `
+                            <div class="gallery-image-item" onclick="openImageViewer(${JSON.stringify(currentPinnedAd.images).replace(/"/g, '&quot;')}, ${index})">
+                                <img src="${img.url}" alt="${currentPinnedAd.title} - obrázek ${index + 1}" class="gallery-image">
+                                <div class="gallery-image-overlay">
+                                    <i class="fas fa-expand"></i>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <p class="gallery-info">Klikněte na obrázek pro plné zobrazení</p>
+                </div>
+                ` : ''}
                 <div class="service-detail-section">
                     <h3>Popis služby</h3>
                     <p>${currentPinnedAd.description}</p>
@@ -1462,8 +1495,8 @@ function showPinnedAdDetails(adId) {
                     </div>
                 </div>
                 <div class="service-actions">
-                    <button class="btn btn-primary" onclick="this.closest('.modal').remove(); openUserProfile();">
-                        <i class="fas fa-user"></i> Profil prodejce
+                    <button class="btn btn-primary" onclick="this.closest('.modal').remove(); openInstagramProfile();">
+                        <i class="fas fa-user"></i> Zobrazit profil
                     </button>
                     <button class="btn btn-outline" onclick="this.closest('.modal').remove()">
                         Zavřít
@@ -1475,6 +1508,8 @@ function showPinnedAdDetails(adId) {
     
     document.body.appendChild(modal);
     console.log('✅ Modal s detaily pinned inzerátu zobrazen');
+    console.log('🔍 Modal element:', modal);
+    console.log('🔍 Modal innerHTML:', modal.innerHTML.substring(0, 200) + '...');
 }
 
 // Formátování data (stejné jako v services.js)
@@ -1489,6 +1524,97 @@ function formatDate(timestamp) {
     });
 }
 
+// Otevření Instagram-like profilu
+async function openInstagramProfile() {
+    console.log('📱 Otevírám Instagram-like profil');
+    console.log('🔍 Aktuální currentChatUser:', currentChatUser);
+    
+    if (!currentChatUser) {
+        console.error('❌ Žádný uživatel není načten');
+        return;
+    }
+    
+    console.log('✅ Uživatel je načten, pokračuji...');
+    
+    // Načíst inzeráty uživatele pokud ještě nejsou načtené
+    if (!currentChatUserAds || currentChatUserAds.length === 0) {
+        await loadUserAds(currentChatUser.uid);
+    }
+    
+    // Vytvoření Instagram-like profil modalu
+    const modal = document.createElement('div');
+    modal.className = 'modal instagram-profile-modal';
+    modal.style.display = 'flex';
+    modal.innerHTML = `
+        <div class="modal-content instagram-profile-content">
+            <div class="instagram-profile-header">
+                <button class="instagram-close-btn" onclick="this.closest('.modal').remove()">
+                    <i class="fas fa-times"></i>
+                </button>
+                <h2>Profil uživatele</h2>
+            </div>
+            
+            <div class="instagram-profile-body">
+                <!-- Profil Header -->
+                <div class="instagram-profile-info">
+                    <div class="instagram-avatar-large">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="instagram-user-details">
+                        <h1 class="instagram-username">${currentChatUser.name || currentChatUser.displayName || 'Uživatel'}</h1>
+                        <div class="instagram-stats">
+                            <div class="instagram-stat">
+                                <span class="instagram-stat-number">${currentChatUserAds.length}</span>
+                                <span class="instagram-stat-label">Inzerátů</span>
+                            </div>
+                            <div class="instagram-stat">
+                                <span class="instagram-stat-number">${currentChatUser.rating || '5.0'}</span>
+                                <span class="instagram-stat-label">Hodnocení</span>
+                            </div>
+                            <div class="instagram-stat">
+                                <span class="instagram-stat-number">${currentChatUser.createdAt ? new Date(currentChatUser.createdAt).getFullYear() : '2024'}</span>
+                                <span class="instagram-stat-label">Registrován</span>
+                            </div>
+                        </div>
+                        <div class="instagram-bio">
+                            <p><strong>Email:</strong> ${currentChatUser.email || 'N/A'}</p>
+                            <p><strong>O uživateli:</strong> ${currentChatUser.bio || 'Žádné informace o uživateli.'}</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Inzeráty Grid -->
+                <div class="instagram-posts-section">
+                    <div class="instagram-posts-header">
+                        <h3><i class="fas fa-thumbtack"></i> Inzeráty uživatele</h3>
+                    </div>
+                    <div class="instagram-posts-grid">
+                        ${currentChatUserAds.map(ad => `
+                            <div class="instagram-post" onclick="showPinnedAdDetails('${ad.id}')">
+                                <div class="instagram-post-content">
+                                    <div class="instagram-post-icon">
+                                        <i class="${getCategoryIcon(ad.category)}"></i>
+                                    </div>
+                                    <div class="instagram-post-info">
+                                        <h4>${ad.title}</h4>
+                                        <p class="instagram-post-price">${ad.price}</p>
+                                        <p class="instagram-post-location">
+                                            <i class="fas fa-map-marker-alt"></i> ${ad.location}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    console.log('✅ Instagram-like profil zobrazen');
+}
+
 // Export funkcí pro globální použití
 window.contactSeller = contactSeller;
 window.openConversation = openConversation;
@@ -1499,3 +1625,4 @@ window.closeUserProfile = closeUserProfile;
 window.viewAd = viewAd;
 window.closeChatPinnedAd = closeChatPinnedAd;
 window.showPinnedAdDetails = showPinnedAdDetails;
+window.openInstagramProfile = openInstagramProfile;

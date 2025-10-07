@@ -844,6 +844,9 @@ html {
     backdrop-filter: blur(5px);
     justify-content: center;
     align-items: center;
+    overflow-y: auto;
+    padding: 20px;
+    box-sizing: border-box;
 }
 
 .modal-content {
@@ -852,8 +855,12 @@ html {
     padding: 2rem;
     width: 90%;
     max-width: 500px;
+    max-height: 90vh;
     box-shadow: 0 20px 40px rgba(0,0,0,0.2);
     animation: modalSlideIn 0.3s ease-out;
+    overflow-y: auto;
+    margin: auto;
+    box-sizing: border-box;
 }
 
 @keyframes modalSlideIn {
@@ -1144,6 +1151,39 @@ html {
     transition: all 0.3s ease;
     box-shadow: 0 4px 15px rgba(0,0,0,0.08);
     color: #2c3e50;
+}
+
+/* Stylování selectu v search boxu (kraje) stejně jako input */
+.search-box select {
+    width: 100%;
+    padding: 14px 50px 14px 20px;
+    border: 2px solid transparent;
+    border-radius: 30px;
+    font-size: 1rem;
+    font-weight: 500;
+    background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.85) 100%);
+    backdrop-filter: blur(15px);
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    color: #2c3e50;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+}
+
+.search-box select:hover {
+    background: linear-gradient(135deg, rgba(255,255,255,1) 0%, rgba(248,249,250,1) 100%);
+    border-color: #3498db;
+    box-shadow: 0 6px 25px rgba(52, 152, 219, 0.15);
+    transform: translateY(-2px);
+}
+
+.search-box select:focus {
+    outline: none;
+    background: linear-gradient(135deg, rgba(255,255,255,1) 0%, rgba(248,249,250,1) 100%);
+    border-color: #3498db;
+    box-shadow: 0 0 0 4px rgba(52, 152, 219, 0.2), 0 6px 25px rgba(52, 152, 219, 0.15);
+    transform: translateY(-2px);
 }
 
 .search-box input:hover {
@@ -2158,6 +2198,465 @@ html {
     }
 }
 
+/* Smooth scrolling pro modaly */
+.modal-content::-webkit-scrollbar,
+.instagram-profile-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.modal-content::-webkit-scrollbar-track,
+.instagram-profile-content::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.modal-content::-webkit-scrollbar-thumb,
+.instagram-profile-content::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+}
+
+.modal-content::-webkit-scrollbar-thumb:hover,
+.instagram-profile-content::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+/* Zajištění správného scrollování */
+.modal {
+    align-items: flex-start;
+    padding-top: 5vh;
+    padding-bottom: 5vh;
+}
+
+/* Service Details Gallery Styles */
+.service-images-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    margin: 1rem 0;
+}
+
+.gallery-image-item {
+    position: relative;
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.gallery-image-item:hover {
+    transform: scale(1.05);
+}
+
+.gallery-image {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    display: block;
+}
+
+.gallery-image-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.gallery-image-item:hover .gallery-image-overlay {
+    opacity: 1;
+}
+
+.gallery-image-overlay i {
+    color: white;
+    font-size: 24px;
+}
+
+.gallery-info {
+    text-align: center;
+    color: #666;
+    font-style: italic;
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+}
+
+/* Registration Type Selection Styles */
+.registration-type-buttons {
+    display: flex;
+    gap: 1rem;
+    margin-top: 0.5rem;
+}
+
+.registration-type-btn {
+    flex: 1;
+    padding: 1rem;
+    border: 2px solid #e0e0e0;
+    background: white;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    color: #666;
+}
+
+.registration-type-btn:hover {
+    border-color: #007bff;
+    color: #007bff;
+}
+
+.registration-type-btn.active {
+    border-color: #007bff;
+    background: #007bff;
+    color: white;
+}
+
+.registration-type-btn i {
+    font-size: 1.2rem;
+}
+
+/* Form visibility transitions */
+.person-form,
+.company-form {
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.person-form.hidden,
+.company-form.hidden {
+    max-height: 0;
+    opacity: 0;
+    margin: 0;
+    padding: 0;
+}
+
+.person-form.visible,
+.company-form.visible {
+    max-height: 500px;
+    opacity: 1;
+}
+
+/* Date input styling */
+input[type="date"] {
+    padding: 12px 16px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+    background: white;
+}
+
+input[type="date"]:focus {
+    border-color: #007bff;
+    outline: none;
+}
+
+/* Tel input styling */
+input[type="tel"] {
+    padding: 12px 16px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+}
+
+input[type="tel"]:focus {
+    border-color: #007bff;
+    outline: none;
+}
+
+/* ===== IMAGE UPLOAD STYLES ===== */
+.form-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: #333;
+}
+
+.form-label i {
+    margin-right: 0.5rem;
+    color: #007bff;
+}
+
+.required {
+    color: #dc3545;
+}
+
+.image-preview {
+    margin-top: 1rem;
+    border: 2px dashed #ddd;
+    border-radius: 8px;
+    padding: 1rem;
+    text-align: center;
+    min-height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f8f9fa;
+}
+
+.image-preview img {
+    max-width: 100%;
+    max-height: 200px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.image-preview.empty {
+    color: #666;
+    font-style: italic;
+}
+
+.images-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.image-item {
+    position: relative;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: transform 0.2s ease;
+}
+
+.image-item:hover {
+    transform: scale(1.05);
+}
+
+.image-item img {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+}
+
+.image-item .remove-btn {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: rgba(220, 53, 69, 0.8);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+}
+
+.image-item .remove-btn:hover {
+    background: rgba(220, 53, 69, 1);
+}
+
+/* Instagram-like Image Viewer */
+.image-viewer-modal {
+    z-index: 3000;
+}
+
+.image-viewer-content {
+    max-width: 90vw;
+    max-height: 90vh;
+    background: black;
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+    margin: auto;
+    box-sizing: border-box;
+}
+
+.image-viewer-header {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.7), transparent);
+    padding: 1rem;
+    z-index: 10;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.image-viewer-close {
+    background: rgba(255,255,255,0.2);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    backdrop-filter: blur(10px);
+}
+
+.image-viewer-close:hover {
+    background: rgba(255,255,255,0.3);
+}
+
+.image-viewer-counter {
+    color: white;
+    font-weight: 600;
+    background: rgba(0,0,0,0.5);
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    backdrop-filter: blur(10px);
+}
+
+.image-viewer-body {
+    position: relative;
+    height: 80vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.image-viewer-main {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    border-radius: 8px;
+}
+
+.image-viewer-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255,255,255,0.2);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    backdrop-filter: blur(10px);
+    transition: all 0.2s ease;
+}
+
+.image-viewer-nav:hover {
+    background: rgba(255,255,255,0.3);
+    transform: translateY(-50%) scale(1.1);
+}
+
+.image-viewer-prev {
+    left: 20px;
+}
+
+.image-viewer-next {
+    right: 20px;
+}
+
+.image-viewer-thumbnails {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
+    padding: 1rem;
+    display: flex;
+    gap: 0.5rem;
+    overflow-x: auto;
+    justify-content: center;
+}
+
+.image-viewer-thumbnail {
+    width: 60px;
+    height: 60px;
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.image-viewer-thumbnail:hover,
+.image-viewer-thumbnail.active {
+    border-color: #007bff;
+    transform: scale(1.1);
+}
+
+.image-viewer-thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Service Card Image Styles */
+.service-image {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 8px 8px 0 0;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.service-image:hover {
+    transform: scale(1.05);
+}
+
+.service-images-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.service-image-thumb {
+    width: 100%;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 4px;
+    cursor: pointer;
+    opacity: 0.7;
+    transition: all 0.2s ease;
+}
+
+.service-image-thumb:hover {
+    opacity: 1;
+    transform: scale(1.05);
+}
+
+.more-images {
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.more-images:hover {
+    background: rgba(0, 0, 0, 0.9);
+    transform: scale(1.05);
+}
+
 /* ===== CHAT STYLES - Instagram-like design ===== */
 
 .chat-container {
@@ -2850,6 +3349,261 @@ html {
     color: #666;
     font-style: italic;
     padding: 2rem;
+}
+
+/* Instagram-like Profile Modal */
+.instagram-profile-modal {
+    z-index: 2000;
+}
+
+.instagram-profile-content {
+    max-width: 800px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    margin: auto;
+    box-sizing: border-box;
+}
+
+.instagram-profile-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.5rem;
+    border-bottom: 1px solid #e0e0e0;
+    background: #f8f9fa;
+    border-radius: 12px 12px 0 0;
+}
+
+.instagram-profile-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #333;
+}
+
+.instagram-close-btn {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: #666;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+.instagram-close-btn:hover {
+    background: #e0e0e0;
+    color: #333;
+}
+
+.instagram-profile-body {
+    padding: 2rem;
+}
+
+.instagram-profile-info {
+    display: flex;
+    align-items: flex-start;
+    gap: 2rem;
+    margin-bottom: 2rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.instagram-avatar-large {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 3rem;
+    flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.instagram-user-details {
+    flex: 1;
+}
+
+.instagram-username {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #333;
+    margin: 0 0 1rem 0;
+}
+
+.instagram-stats {
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 1.5rem;
+}
+
+.instagram-stat {
+    text-align: center;
+}
+
+.instagram-stat-number {
+    display: block;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #667eea;
+    margin-bottom: 0.25rem;
+}
+
+.instagram-stat-label {
+    font-size: 0.9rem;
+    color: #666;
+    font-weight: 500;
+}
+
+.instagram-bio {
+    color: #333;
+    line-height: 1.6;
+}
+
+.instagram-bio p {
+    margin: 0.5rem 0;
+}
+
+.instagram-posts-section {
+    margin-top: 2rem;
+}
+
+.instagram-posts-header {
+    margin-bottom: 1.5rem;
+}
+
+.instagram-posts-header h3 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #333;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.instagram-posts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.instagram-post {
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    padding: 1.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.instagram-post:hover {
+    border-color: #667eea;
+    box-shadow: 0 4px 16px rgba(102, 126, 234, 0.2);
+    transform: translateY(-2px);
+}
+
+.instagram-post-content {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.instagram-post-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+.instagram-post-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.instagram-post-info h4 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #333;
+    margin: 0 0 0.5rem 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.instagram-post-price {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #667eea;
+    margin: 0 0 0.5rem 0;
+}
+
+.instagram-post-location {
+    font-size: 0.9rem;
+    color: #666;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+/* Responzivní design pro Instagram profil */
+@media (max-width: 768px) {
+    .instagram-profile-content {
+        width: 95%;
+        max-height: 95vh;
+    }
+    
+    .instagram-profile-info {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+    }
+    
+    .instagram-avatar-large {
+        width: 100px;
+        height: 100px;
+        font-size: 2.5rem;
+    }
+    
+    .instagram-username {
+        font-size: 1.5rem;
+    }
+    
+    .instagram-stats {
+        justify-content: center;
+        gap: 1.5rem;
+    }
+    
+    .instagram-posts-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .instagram-post {
+        padding: 1rem;
+    }
+    
+    .instagram-post-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 1.2rem;
+    }
 }
 
 /* Pinned Ad Styles */
