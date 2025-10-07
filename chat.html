@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat - Tugedr.eu</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { getFirestore } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        import { getAnalytics } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js';
+        
+        // Firebase konfigurace
+        const firebaseConfig = {
+            apiKey: "AIzaSyA1FEmsY458LLKQLGcUaOVXsYr3Ii55QeQ",
+            authDomain: "inzerio-inzerce.firebaseapp.com",
+            projectId: "inzerio-inzerce",
+            storageBucket: "inzerio-inzerce.firebasestorage.app",
+            messagingSenderId: "262039290071",
+            appId: "1:262039290071:web:30af0eb1c65cd75e307092",
+            measurementId: "G-7VD0ZE08M3"
+        };
+        
+        // Inicializace Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const analytics = getAnalytics(app);
+        
+        // Export pro globální použití
+        window.firebaseApp = app;
+        window.firebaseAuth = auth;
+        window.firebaseDb = db;
+    </script>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="navbar">
+            <div class="nav-container">
+                <div class="nav-logo">
+                    <a href="index.html" style="text-decoration: none; color: white;">
+                        <h1>Tugedr.eu</h1>
+                    </a>
+                </div>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="index.html" class="nav-link">Domů</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="services.html" class="nav-link">Služby</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="my-ads.html" class="nav-link">Mé inzeráty</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="chat.html" class="nav-link active">Chat</a>
+                    </li>
+                </ul>
+                <div class="user-info" style="display: none;">
+                    <div class="user-dropdown">
+                        <div class="user-profile" onclick="toggleUserDropdown()">
+                            <i class="fas fa-user-circle user-icon"></i>
+                            <span class="user-name"></span>
+                            <i class="fas fa-chevron-down dropdown-arrow"></i>
+                        </div>
+                        <div class="user-dropdown-menu">
+                            <div class="user-dropdown-header">
+                                <i class="fas fa-user-circle"></i>
+                                <div class="user-info-text">
+                                    <div class="user-display-name"></div>
+                                    <div class="user-email"></div>
+                                </div>
+                            </div>
+                            <div class="user-dropdown-divider"></div>
+                            <div class="user-balance">
+                                <i class="fas fa-wallet"></i>
+                                <span class="balance-amount">0 Kč</span>
+                            </div>
+                            <div class="user-dropdown-divider"></div>
+                            <a href="my-ads.html" class="user-dropdown-item">
+                                <i class="fas fa-list"></i>
+                                Mé inzeráty
+                            </a>
+                            <button class="user-dropdown-item" onclick="logout()">
+                                <i class="fas fa-sign-out-alt"></i>
+                                Odhlásit se
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="hamburger">
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Chat Container -->
+    <div class="chat-container">
+        <!-- Seznam konverzací -->
+        <div class="conversations-sidebar" id="conversationsList">
+            <div class="conversations-header">
+                <h2><i class="fas fa-comments"></i> Konverzace</h2>
+                <button onclick="testCreateConversation()" class="btn btn-primary" style="margin-top: 0.5rem; font-size: 0.8rem;">
+                    <i class="fas fa-test-tube"></i> Test Chat
+                </button>
+            </div>
+            <div class="conversations-list">
+                <!-- Konverzace se načtou dynamicky -->
+            </div>
+        </div>
+
+        <!-- Chat okno -->
+        <div class="chat-window" id="chatWindow" style="display: none;">
+            <div class="chat-header">
+                <button class="back-button" id="backButton">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <div class="chat-title" onclick="openUserProfile()">
+                    <div class="user-profile-preview">
+                        <div class="user-avatar-small" id="userAvatarSmall">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="user-info-small">
+                            <h3 id="chatTitle">Konverzace</h3>
+                            <p id="userStatus">Online</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="chat-actions">
+                    <button class="chat-action-btn" onclick="openUserProfile()">
+                        <i class="fas fa-user"></i>
+                    </button>
+                    <button class="chat-action-btn">
+                        <i class="fas fa-phone"></i>
+                    </button>
+                    <button class="chat-action-btn">
+                        <i class="fas fa-video"></i>
+                    </button>
+                    <button class="chat-action-btn">
+                        <i class="fas fa-ellipsis-v"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Pinned Ad v Chat Header -->
+            <div class="chat-pinned-ad" id="chatPinnedAd" style="display: none;">
+                <!-- Pinned inzerát se načte dynamicky -->
+            </div>
+
+            <div class="messages-container" id="messagesContainer">
+                <!-- Zprávy se načtou dynamicky -->
+            </div>
+
+            <div class="message-input-container">
+                <div class="message-input-wrapper">
+                    <button class="attachment-btn">
+                        <i class="fas fa-paperclip"></i>
+                    </button>
+                    <input type="text" id="messageInput" placeholder="Napište zprávu..." class="message-input">
+                    <button class="send-btn" id="sendButton">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Prázdný stav -->
+        <div class="empty-chat" id="emptyChat">
+            <div class="empty-chat-content">
+                <i class="fas fa-comments"></i>
+                <h3>Vítejte v chatu</h3>
+                <p>Začněte konverzaci kontaktováním inzerentů na stránce služeb</p>
+                <a href="services.html" class="btn btn-primary">Prohlédnout služby</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Profile Modal -->
+    <div id="userProfileModal" class="modal">
+        <div class="modal-content profile-modal">
+            <div class="modal-header">
+                <h2 class="modal-title">Profil uživatele</h2>
+                <span class="close" onclick="closeUserProfile()">&times;</span>
+            </div>
+            <div class="profile-content">
+                <div class="profile-header">
+                    <div class="profile-avatar-large" id="profileAvatarLarge">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="profile-info">
+                        <h3 id="profileUserName">Jméno uživatele</h3>
+                        <p id="profileUserEmail">email@example.com</p>
+                        <p id="profileUserStatus">Online</p>
+                    </div>
+                </div>
+                <div class="profile-stats">
+                    <div class="stat-item">
+                        <span class="stat-number" id="profileAdsCount">0</span>
+                        <span class="stat-label">Inzerátů</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" id="profileRating">5.0</span>
+                        <span class="stat-label">Hodnocení</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" id="profileJoined">2024</span>
+                        <span class="stat-label">Registrován</span>
+                    </div>
+                </div>
+                <div class="profile-section">
+                    <h4>O uživateli</h4>
+                    <p id="profileUserBio">Žádné informace o uživateli.</p>
+                </div>
+                <div class="profile-section">
+                    <h4><i class="fas fa-thumbtack"></i> Původní inzerát</h4>
+                    <div class="pinned-ad" id="pinnedAd">
+                        <!-- Pinned inzerát se načte dynamicky -->
+                    </div>
+                </div>
+                <div class="profile-section">
+                    <h4>Další inzeráty uživatele</h4>
+                    <div class="user-ads-list" id="userAdsList">
+                        <!-- Inzeráty se načtou dynamicky -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script src="auth.js"></script>
+    <script src="chat.js"></script>
+</body>
+</html>

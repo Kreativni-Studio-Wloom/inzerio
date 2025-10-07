@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tugedr.eu - Inzerce služeb</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { getFirestore } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        import { getAnalytics } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js';
+        
+        // Firebase konfigurace
+        const firebaseConfig = {
+            apiKey: "AIzaSyA1FEmsY458LLKQLGcUaOVXsYr3Ii55QeQ",
+            authDomain: "inzerio-inzerce.firebaseapp.com",
+            projectId: "inzerio-inzerce",
+            storageBucket: "inzerio-inzerce.firebasestorage.app",
+            messagingSenderId: "262039290071",
+            appId: "1:262039290071:web:30af0eb1c65cd75e307092",
+            measurementId: "G-7VD0ZE08M3"
+        };
+        
+        // Inicializace Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const analytics = getAnalytics(app);
+        
+        // Export pro globální použití
+        window.firebaseApp = app;
+        window.firebaseAuth = auth;
+        window.firebaseDb = db;
+    </script>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="navbar">
+            <div class="nav-container">
+                <div class="nav-logo">
+                    <h1>Tugedr.eu</h1>
+                </div>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="#home" class="nav-link">Domů</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="services.html" class="nav-link">Služby</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="my-ads.html" class="nav-link">Mé inzeráty</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="chat.html" class="nav-link">Chat</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#about" class="nav-link">O nás</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#contact" class="nav-link">Kontakt</a>
+                    </li>
+                </ul>
+                <div class="auth-buttons">
+                    <button class="btn btn-outline" onclick="showAuthModal('login')">Přihlášení</button>
+                    <button class="btn btn-primary" onclick="showAuthModal('register')">Registrace</button>
+                </div>
+                <div class="user-info" style="display: none;">
+                    <div class="user-dropdown">
+                        <div class="user-profile" onclick="toggleUserDropdown()">
+                            <i class="fas fa-user-circle user-icon"></i>
+                            <span class="user-name"></span>
+                            <i class="fas fa-chevron-down dropdown-arrow"></i>
+                        </div>
+                        <div class="user-dropdown-menu">
+                            <div class="user-dropdown-header">
+                                <i class="fas fa-user-circle"></i>
+                                <div class="user-info-text">
+                                    <div class="user-display-name"></div>
+                                    <div class="user-email"></div>
+                                </div>
+                            </div>
+                            <div class="user-dropdown-divider"></div>
+                            <div class="user-balance">
+                                <i class="fas fa-wallet"></i>
+                                <span class="balance-amount">0 Kč</span>
+                            </div>
+                            <div class="user-dropdown-divider"></div>
+                            <a href="my-ads.html" class="user-dropdown-item">
+                                <i class="fas fa-list"></i>
+                                Mé inzeráty
+                            </a>
+                            <button class="user-dropdown-item" onclick="logout()">
+                                <i class="fas fa-sign-out-alt"></i>
+                                Odhlásit se
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="hamburger">
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <div class="hero-container">
+            <div class="hero-content">
+                <h1 class="hero-title">Profesionální služby pro každého</h1>
+                <p class="hero-description">
+                    Najděte kvalitní služby nebo nabídněte své vlastní. 
+                    Naše platforma spojuje zákazníky s profesionály.
+                </p>
+                <div class="hero-buttons">
+                    <a href="services.html" class="btn btn-primary">Prohlédnout služby</a>
+                    <a href="#contact" class="btn btn-secondary">Nabídnout službu</a>
+                </div>
+            </div>
+            <div class="hero-image">
+                <div class="hero-placeholder">
+                    <i class="fas fa-handshake"></i>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section id="services" class="services">
+        <div class="container">
+            <div class="section-header">
+                <h2>Naše služby</h2>
+                <p>Široká škála profesionálních služeb</p>
+            </div>
+            
+            <div class="services-grid">
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-tools"></i>
+                    </div>
+                    <h3>Technické služby</h3>
+                    <p>Opravy, instalace, údržba a další technické služby pro domácnosti i firmy.</p>
+                    <ul class="service-list">
+                        <li>Opravy spotřebičů</li>
+                        <li>Instalace nábytku</li>
+                        <li>Elektroinstalace</li>
+                        <li>Vodoinstalace</li>
+                    </ul>
+                </div>
+
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-laptop-code"></i>
+                    </div>
+                    <h3>IT služby</h3>
+                    <p>Kompletní IT podpora, vývoj webů, údržba počítačů a síťových řešení.</p>
+                    <ul class="service-list">
+                        <li>Vývoj webových stránek</li>
+                        <li>Opravy počítačů</li>
+                        <li>Síťové řešení</li>
+                        <li>IT konzultace</li>
+                    </ul>
+                </div>
+
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-paint-brush"></i>
+                    </div>
+                    <h3>Design a kreativita</h3>
+                    <p>Grafický design, fotografie, marketingové materiály a kreativní služby.</p>
+                    <ul class="service-list">
+                        <li>Grafický design</li>
+                        <li>Fotografie</li>
+                        <li>Marketingové materiály</li>
+                        <li>Branding</li>
+                    </ul>
+                </div>
+
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                    <h3>Vzdělávání</h3>
+                    <p>Doučování, kurzy, školení a vzdělávací služby pro všechny věkové kategorie.</p>
+                    <ul class="service-list">
+                        <li>Doučování</li>
+                        <li>Jazykové kurzy</li>
+                        <li>Počítačové kurzy</li>
+                        <li>Odborné školení</li>
+                    </ul>
+                </div>
+
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-home"></i>
+                    </div>
+                    <h3>Domácí služby</h3>
+                    <p>Úklid, zahradnictví, hlídání dětí a další služby pro domácnost.</p>
+                    <ul class="service-list">
+                        <li>Úklidové služby</li>
+                        <li>Zahradnictví</li>
+                        <li>Hlídání dětí</li>
+                        <li>Domácí péče</li>
+                    </ul>
+                </div>
+
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-car"></i>
+                    </div>
+                    <h3>Doprava a logistika</h3>
+                    <p>Přeprava, kurýrní služby, stěhování a další dopravní služby.</p>
+                    <ul class="service-list">
+                        <li>Stěhování</li>
+                        <li>Kurýrní služby</li>
+                        <li>Taxi služby</li>
+                        <li>Logistika</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="about">
+        <div class="container">
+            <div class="about-content">
+                <div class="about-text">
+                    <h2>O nás</h2>
+                    <p>
+                        Tugedr.eu je moderní platforma pro inzerci služeb, která spojuje zákazníky 
+                        s kvalifikovanými profesionály. Naším cílem je vytvořit spolehlivé prostředí, 
+                        kde každý může najít nebo nabídnout služby podle svých potřeb.
+                    </p>
+                    <p>
+                        Věříme v kvalitu, transparentnost a vzájemnou důvěru. Proto pečlivě ověřujeme 
+                        všechny poskytovatele služeb a zajišťujeme, aby naši zákazníci dostali 
+                        nejlepší možnou službu.
+                    </p>
+                    <div class="stats">
+                        <div class="stat">
+                            <h3>500+</h3>
+                            <p>Spokojených zákazníků</p>
+                        </div>
+                        <div class="stat">
+                            <h3>50+</h3>
+                            <p>Kvalifikovaných profesionálů</p>
+                        </div>
+                        <div class="stat">
+                            <h3>100%</h3>
+                            <p>Spokojenost zákazníků</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="about-image">
+                    <div class="about-placeholder">
+                        <i class="fas fa-users"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="contact">
+        <div class="container">
+            <div class="section-header">
+                <h2>Kontaktujte nás</h2>
+                <p>Máte dotaz nebo chcete nabídnout svou službu?</p>
+            </div>
+            
+            <div class="contact-content">
+                <div class="contact-info">
+                    <div class="contact-item">
+                        <i class="fas fa-phone"></i>
+                        <div>
+                            <h3>Telefon</h3>
+                            <p>+420 123 456 789</p>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-envelope"></i>
+                        <div>
+                            <h3>Email</h3>
+                            <p>info@tugedr.eu</p>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <div>
+                            <h3>Adresa</h3>
+                            <p>Praha, Česká republika</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <form class="contact-form">
+                    <div class="form-group">
+                        <input type="text" id="name" name="name" placeholder="Vaše jméno" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="email" id="email" name="email" placeholder="Váš email" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="subject" name="subject" placeholder="Předmět" required>
+                    </div>
+                    <div class="form-group">
+                        <textarea id="message" name="message" placeholder="Vaše zpráva" rows="5" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Odeslat zprávu</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Tugedr.eu</h3>
+                    <p>Profesionální služby pro každého. Spojujeme zákazníky s kvalifikovanými profesionály.</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Rychlé odkazy</h3>
+                    <ul>
+                        <li><a href="#home">Domů</a></li>
+                        <li><a href="#services">Služby</a></li>
+                        <li><a href="#about">O nás</a></li>
+                        <li><a href="#contact">Kontakt</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Kontakt</h3>
+                    <p><i class="fas fa-phone"></i> +420 123 456 789</p>
+                    <p><i class="fas fa-envelope"></i> info@tugedr.eu</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Tugedr.eu. Všechna práva vyhrazena.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Auth Modal -->
+    <div id="authModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Přihlášení</h2>
+                <span class="close" onclick="closeAuthModal()">&times;</span>
+            </div>
+            <form id="authForm" class="auth-form">
+                <div class="form-group name-field" style="display: none;">
+                    <input type="text" id="name" name="name" placeholder="Vaše jméno">
+                </div>
+                <div class="form-group">
+                    <input type="email" id="email" name="email" placeholder="Email" required>
+                </div>
+                <div class="form-group">
+                    <input type="password" id="password" name="password" placeholder="Heslo" required>
+                </div>
+                <button type="submit" class="btn btn-primary auth-submit-btn">Přihlásit se</button>
+            </form>
+            <div class="auth-switch">
+                <button type="button" class="auth-switch-btn" data-type="register">Nemáte účet? Zaregistrujte se</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Service Modal -->
+    <div id="addServiceModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Přidat službu</h2>
+                <span class="close" onclick="closeAddServiceModal()">&times;</span>
+            </div>
+            <form id="addServiceForm" class="service-form">
+                <div class="form-group">
+                    <input type="text" id="serviceTitle" name="title" placeholder="Název služby" required>
+                </div>
+                <div class="form-group">
+                    <select id="serviceCategory" name="category" required>
+                        <option value="">Vyberte kategorii</option>
+                        <option value="technical">Technické služby</option>
+                        <option value="it">IT služby</option>
+                        <option value="design">Design a kreativita</option>
+                        <option value="education">Vzdělávání</option>
+                        <option value="home">Domácí služby</option>
+                        <option value="transport">Doprava a logistika</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <textarea id="serviceDescription" name="description" placeholder="Popis služby" rows="4" required></textarea>
+                </div>
+                <div class="form-group">
+                    <input type="text" id="servicePrice" name="price" placeholder="Cena (např. 500 Kč/hod)">
+                </div>
+                <div class="form-group">
+                    <input type="text" id="serviceLocation" name="location" placeholder="Lokalita" list="citiesList" autocomplete="off" required>
+                    <datalist id="citiesList"></datalist>
+                </div>
+                <button type="submit" class="btn btn-primary">Přidat službu</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script src="auth.js"></script>
+    <script src="cities.js"></script>
+</body>
+</html>
